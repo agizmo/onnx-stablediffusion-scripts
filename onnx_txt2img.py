@@ -8,13 +8,13 @@ parser.add_argument(
     type=str,
     nargs="?",
     default="a painting of a virus monster playing guitar",
-    help="the prompt to render"
+    help="The prompt to render"
 )
 parser.add_argument(
     "--outdir",
     type=str,
     nargs="?",
-    help="dir to write results to",
+    help="Default: outputs/txt2img-samples. Directory to write results to",
     default="outputs/txt2img-samples"
 )
 #parser.add_argument(
@@ -31,7 +31,7 @@ parser.add_argument(
     "--ddim_steps",
     type=int,
     default=50,
-    help="number of ddim sampling steps",
+    help="Default: 50. Number of ddim sampling steps",
 )
 #parser.add_argument(
 #    "--plms",
@@ -52,7 +52,7 @@ parser.add_argument(
     "--ddim_eta",
     type=float,
     default=0.0,
-    help="ddim eta (eta=0.0 corresponds to deterministic sampling",
+    help="Default: 0.0. ddim eta (eta=0.0 corresponds to deterministic sampling)",
 )
 #parser.add_argument(
 #    "--n_iter",
@@ -64,13 +64,13 @@ parser.add_argument(
     "--H",
     type=int,
     default=512,
-    help="image height, in pixel space",
+    help="Default: 512. Image height, in pixel space",
 )
 parser.add_argument(
     "--W",
     type=int,
     default=512,
-    help="image width, in pixel space",
+    help="Default: 512. Image width, in pixel space",
 )
 #parser.add_argument(
 #    "--C",
@@ -88,7 +88,7 @@ parser.add_argument(
     "--n_samples",
     type=int,
     default=3,
-    help="how many samples to produce for each given prompt. A.k.a. batch size",
+    help="Default: 3. How many samples to produce for each given prompt. A.k.a. batch size",
 )
 #parser.add_argument(
 #    "--n_rows",
@@ -100,7 +100,7 @@ parser.add_argument(
     "--scale",
     type=float,
     default=7.5,
-    help="unconditional guidance scale: eps = eps(x, empty) + scale * (eps(x, cond) - eps(x, empty))",
+    help="Default: 7.5. Unconditional guidance scale",
 )
 #parser.add_argument(
 #    "--from-file",
@@ -123,13 +123,13 @@ parser.add_argument(
     "--seed",
     type=int,
     default=42,
-    help="the seed (for reproducible sampling)",
+    help="Default: 42. The seed (for reproducible sampling)",
 )
 parser.add_argument(
     "--random_seed",
     type=bool,
     default=False,
-    help="generate a random seed"
+    help="Default: False. Generate a random seed value"
 )
 #parser.add_argument(
 #    "--precision",
@@ -141,7 +141,7 @@ parser.add_argument(
 parser.add_argument(
     "--hardware",
     type=str,
-    help="GPU or CPU processing",
+    help="Default: gpu. GPU or CPU processing",
     choices=["gpu","cpu"],
     default="gpu"
 )

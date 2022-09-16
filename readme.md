@@ -15,24 +15,23 @@ By default the script will attempt to generate 3 images at 512x512 pixels in a `
 
 # All arguement options
 ```
-onnx_txt2img.py [-h] [--prompt [PROMPT]] [--outdir [OUTDIR]] [--ddim_steps DDIM_STEPS] [--ddim_eta DDIM_ETA]
-                        [--H H] [--W W] [--n_samples N_SAMPLES] [--scale SCALE] [--seed SEED]
-                        [--random_seed RANDOM_SEED] [--hardware {gpu,cpu}]
+onnx_txt2img.py [-h] [--prompt [PROMPT]] [--outdir [OUTDIR]] [--ddim_steps DDIM_STEPS] [--ddim_eta DDIM_ETA] [--H H] [--W W] [--n_samples N_SAMPLES] [--scale SCALE] [--seed SEED]
+                       [--random_seed RANDOM_SEED] [--hardware {gpu,cpu}]
 
 optional arguments:
   -h, --help            show this help message and exit
-  --prompt [PROMPT]     the prompt to render
-  --outdir [OUTDIR]     dir to write results to
+  --prompt [PROMPT]     The prompt to render
+  --outdir [OUTDIR]     Default: outputs/txt2img-samples. Directory to write results to
   --ddim_steps DDIM_STEPS
-                        number of ddim sampling steps
-  --ddim_eta DDIM_ETA   ddim eta (eta=0.0 corresponds to deterministic sampling
-  --H H                 image height, in pixel space
-  --W W                 image width, in pixel space
+                        Default: 50. Number of ddim sampling steps
+  --ddim_eta DDIM_ETA   Default: 0.0. ddim eta (eta=0.0 corresponds to deterministic sampling)
+  --H H                 Default: 512. Image height, in pixel space
+  --W W                 Default: 512. Image width, in pixel space
   --n_samples N_SAMPLES
-                        how many samples to produce for each given prompt. A.k.a. batch size
-  --scale SCALE         unconditional guidance scale: eps = eps(x, empty) + scale * (eps(x, cond) - eps(x, empty))
-  --seed SEED           the seed (for reproducible sampling)
+                        Default: 3. How many samples to produce for each given prompt. A.k.a. batch size
+  --scale SCALE         Default: 7.5. Unconditional guidance scale
+  --seed SEED           Default: 42. The seed (for reproducible sampling)
   --random_seed RANDOM_SEED
-                        generate a random seed
-  --hardware {gpu,cpu}  GPU or CPU processing
+                        Default: False. Generate a random seed value
+  --hardware {gpu,cpu}  Default: gpu. GPU or CPU processing
   ```
