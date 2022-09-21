@@ -193,7 +193,7 @@ for lp in range(opt.loop):
         seed = random.randint(1,(2**32))
         print("seed: "+str(seed))
     else:
-        seed = opt.seeds
+        seed = opt.seed
 
     batch_size = opt.n_samples
     prompt = opt.prompt
