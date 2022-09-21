@@ -5,7 +5,7 @@ My script file is inspired by Travel Neil's post at [https://www.travelneil.com/
 
 # Example Command
 ```
-.\onnx_txt2img.py --n_samples 1 --prompt "astronaut riding a horse" --random_seed True
+python .\onnx_txt2img.py --n_samples 1 --prompt "astronaut riding a horse" --random_seed True
 100%|██████████████████████████████████████████████████████████████████████████████████| 51/51 [02:03<00:00,  2.42s/it]
 seed: 391198996415909456
 ```
@@ -15,8 +15,7 @@ By default the script will attempt to generate 3 images at 512x512 pixels in a `
 
 # All arguement options
 ```
-onnx_txt2img.py [-h] [--prompt [PROMPT]] [--outdir [OUTDIR]] [--ddim_steps DDIM_STEPS] [--ddim_eta DDIM_ETA] [--H H] [--W W] [--n_samples N_SAMPLES] [--scale SCALE] [--seed SEED]
-                       [--random_seed RANDOM_SEED] [--hardware {gpu,cpu}]
+onnx_txt2img.py [-h] [--prompt [PROMPT]] [--outdir [OUTDIR]] [--ddim_steps DDIM_STEPS] [--ddim_eta DDIM_ETA] [--H H] [--W W] [--n_samples N_SAMPLES] [--scale SCALE] [--seed SEED] [--random_seed RANDOM_SEED] [--hardware {gpu,cpu}] [--loop LOOP] [--log LOG]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -28,10 +27,12 @@ optional arguments:
   --H H                 Default: 512. Image height, in pixel space
   --W W                 Default: 512. Image width, in pixel space
   --n_samples N_SAMPLES
-                        Default: 3. How many samples to produce for each given prompt. A.k.a. batch size
+                        Default: 2. How many samples to produce for each given prompt. A.k.a. batch size
   --scale SCALE         Default: 7.5. Unconditional guidance scale
   --seed SEED           Default: 42. The seed (for reproducible sampling)
   --random_seed RANDOM_SEED
                         Default: False. Generate a random seed value
   --hardware {gpu,cpu}  Default: gpu. GPU or CPU processing
+  --loop LOOP           Default: 1. How many times to loop through. USE WITH --random_seed flag
+  --log LOG             Default: False. Create a logfile detailing the image parameters
   ```

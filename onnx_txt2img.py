@@ -1,6 +1,6 @@
 from diffusers import StableDiffusionOnnxPipeline
 import numpy as np
-import argparse, os, random
+import argparse, os, random, csv,warnings
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -87,8 +87,8 @@ parser.add_argument(
 parser.add_argument(
     "--n_samples",
     type=int,
-    default=3,
-    help="Default: 3. How many samples to produce for each given prompt. A.k.a. batch size",
+    default=2,
+    help="Default: 2. How many samples to produce for each given prompt. A.k.a. batch size",
 )
 #parser.add_argument(
 #    "--n_rows",
@@ -145,10 +145,31 @@ parser.add_argument(
     choices=["gpu","cpu"],
     default="gpu"
 )
+parser.add_argument(
+    "--loop",
+    type=int,
+    help="Default: 1. How many times to loop through. USE WITH --random_seed flag",
+    default=1
+)
+parser.add_argument(
+    "--log",
+    type=bool,
+    help="Default: False. Create a logfile detailing the image parameters",
+    default=False
+)
+
 opt = parser.parse_args()
 
 os.makedirs(opt.outdir, exist_ok=True)
 outpath = opt.outdir
+
+logfilename = "log.csv"
+logpath = os.path.join(outpath,logfilename)
+if opt.log and not os.path.exists(logpath):
+    fields = ['image','ddim_steps','ddim_eta','H','W','n_samples','scale','seed','prompt']
+    with open(logpath, 'w') as csvfile:
+        csvwriter = csv.writer(csvfile)
+        csvwriter.writerow(fields)
 
 sample_path = os.path.join(outpath, "samples")
 os.makedirs(sample_path, exist_ok=True)
@@ -165,31 +186,32 @@ def get_latents_from_seed(samples:int, seed: int, width: int, height:int) -> np.
 if opt.hardware == "gpu":
     pipe = StableDiffusionOnnxPipeline.from_pretrained("./stable_diffusion_onnx", provider="DmlExecutionProvider")
 elif opt.hardware == "cpu":
-    pipe = StableDiffusionOnnxPipeline.from_pretrained("./stable_diffusion_onnx")
+    pipe = StableDiffusionOnnxPipeline.from_pretrained("./stable_diffusion_onnx", provider="CPUExecutionProvider")
 
 if opt.random_seed:
-    seed = random.randint(1,1152921504606846975)
+    seed = random.randint(1,(2**32))
     print("seed: "+str(seed))
 else:
     seed = opt.seed
 
-"""
-prompt: Union[str, List[str]],
-height: Optional[int] = 512,
-width: Optional[int] = 512,
-num_inference_steps: Optional[int] = 50,
-guidance_scale: Optional[float] = 7.5, # This is also sometimes called the CFG value
-eta: Optional[float] = 0.0,
-latents: Optional[np.ndarray] = None,
-output_type: Optional[str] = "pil",
-"""
 batch_size = opt.n_samples
 prompt = opt.prompt
-# Generate our own latents so that we can provide a seed.
-latents = get_latents_from_seed(batch_size ,seed, opt.H, opt.W)
-data = [prompt]* batch_size
-results = pipe(data, height=opt.H, width=opt.W, num_inference_steps=opt.ddim_steps, guidance_scale=opt.scale, eta=opt.ddim_eta, latents=latents )
-#for image in images:
-for image in (results.images):
-    image.save(os.path.join(sample_path, f"{base_count:05}.png"))
-    base_count += 1
+for lp in range(opt.loop):
+    # Generate our own latents so that we can provide a seed.
+    latents = get_latents_from_seed(batch_size ,seed, opt.H, opt.W)
+    data = [prompt]* batch_size
+    results = pipe(data, height=opt.H, width=opt.W, num_inference_steps=opt.ddim_steps, guidance_scale=opt.scale, eta=opt.ddim_eta, latents=latents )
+    #for image in images:
+    for i in range(len(results.images)):
+        if results.nsfw_content_detected[i]:
+            print(f"{base_count:05}.png image flagged as having nsfw content. Try a different seed or ddim_step count.")
+        
+        results.images[i].save(os.path.join(sample_path, f"{base_count:05}.png"))
+
+        row = [f"{base_count:05}.png",opt.ddim_steps,opt.ddim_eta,opt.H,opt.W,opt.n_samples,opt.scale,opt.seed,opt.prompt]
+        if opt.log:
+            with open(logpath, 'a') as csvfile:
+                csvwriter = csv.writer(csvfile)
+                csvwriter.writerow(row)
+
+        base_count += 1
