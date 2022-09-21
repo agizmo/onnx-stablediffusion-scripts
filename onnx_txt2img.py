@@ -188,15 +188,15 @@ if opt.hardware == "gpu":
 elif opt.hardware == "cpu":
     pipe = StableDiffusionOnnxPipeline.from_pretrained("./stable_diffusion_onnx", provider="CPUExecutionProvider")
 
-if opt.random_seed:
-    seed = random.randint(1,(2**32))
-    print("seed: "+str(seed))
-else:
-    seed = opt.seed
-
-batch_size = opt.n_samples
-prompt = opt.prompt
 for lp in range(opt.loop):
+    if opt.random_seed:
+        seed = random.randint(1,(2**32))
+        print("seed: "+str(seed))
+    else:
+        seed = opt.seeds
+
+    batch_size = opt.n_samples
+    prompt = opt.prompt
     # Generate our own latents so that we can provide a seed.
     latents = get_latents_from_seed(batch_size ,seed, opt.H, opt.W)
     data = [prompt]* batch_size
@@ -208,7 +208,7 @@ for lp in range(opt.loop):
         
         results.images[i].save(os.path.join(sample_path, f"{base_count:05}.png"))
 
-        row = [f"{base_count:05}.png",opt.ddim_steps,opt.ddim_eta,opt.H,opt.W,opt.n_samples,opt.scale,opt.seed,opt.prompt]
+        row = [f"{base_count:05}.png",opt.ddim_steps,opt.ddim_eta,opt.H,opt.W,opt.n_samples,opt.scale,seed,opt.prompt]
         if opt.log:
             with open(logpath, 'a') as csvfile:
                 csvwriter = csv.writer(csvfile)
