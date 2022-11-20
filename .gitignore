@@ -1,5 +1,6 @@
 outputs
-stable_diffusion_onnx
+stable_diffusion_onnx*
 __pycache__
 .vscode
 convert_stable_diffusion_checkpoint_to_onnx.py
+*.whl

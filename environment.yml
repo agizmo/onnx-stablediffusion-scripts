@@ -1,0 +1,15 @@
+name: onnx
+channels:
+  - defaults
+dependencies:
+  - python==3.9
+  - pip
+  - pip:
+    - diffusers
+    - transformers
+    - onnxruntime
+    - onnx
+    - torch
+    - ftfy
+    - spacy
+    - accelerate

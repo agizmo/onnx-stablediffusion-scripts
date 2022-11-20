@@ -1,6 +1,8 @@
-from diffusers import OnnxStableDiffusionPipeline
+from diffusers import OnnxStableDiffusionImg2ImgPipeline
 import numpy as np
 import argparse, os, random, csv,warnings
+import PIL
+from PIL import Image
 
 def get_latents_from_seed(samples:int, seed: int, width: int, height:int) -> np.ndarray:
     # 1 is batch size
@@ -9,6 +11,21 @@ def get_latents_from_seed(samples:int, seed: int, width: int, height:int) -> np.
     rng = np.random.default_rng(seed)
     image_latents = rng.standard_normal(latents_shape).astype(np.float32)
     return image_latents
+
+def load_img(path, width:int, height:int):
+    image = Image.open(path).convert("RGB")
+    w, h = image.size
+    print(f"loaded input image of size ({w}, {h}) from {path}")
+    if w > width or h > height:
+        image.thumbnail((width,height), resample=PIL.Image.Resampling.BICUBIC)
+        w, h = image.size
+    w, h = map(lambda x: x - x % 64, (w, h))  # resize to integer multiple of 64
+    image = image.resize((w, h), resample=PIL.Image.Resampling.LANCZOS)
+    return image
+    #image = np.array(image).astype(np.float32) / 255.0
+    #image = image[None].transpose(0, 3, 1, 2)
+    #image = torch.from_numpy(image)
+    #return 2.*image - 1.
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -19,11 +36,17 @@ parser.add_argument(
     help="The prompt to render"
 )
 parser.add_argument(
+      "--init_img",
+      type=str,
+      nargs="?",
+      help="path to the input image"
+)
+parser.add_argument(
     "--outdir",
     type=str,
     nargs="?",
-    help="Default: outputs/txt2img-samples. Directory to write results to",
-    default="outputs/txt2img-samples"
+    help="Default: outputs/img2img-samples. Directory to write results to",
+    default="outputs/img2img-samples"
 )
 #parser.add_argument(
 #    "--skip_grid",
@@ -183,10 +206,14 @@ opt = parser.parse_args()
 os.makedirs(opt.outdir, exist_ok=True)
 outpath = opt.outdir
 
+#assert os.path.isfile(opt.init_img)
+#init_image = Image.open(opt.init_img)
+init_image = load_img(opt.init_img, opt.W, opt.H)
+
 logfilename = "log.csv"
 logpath = os.path.join(outpath,logfilename)
 if opt.log and not os.path.exists(logpath):
-    fields = ['image','ddim_steps','ddim_eta','H','W','n_samples','scale','seed','prompt','negative_prompt']
+    fields = ['image','ddim_steps','ddim_eta','H','W','n_samples','scale','seed','prompt','negative_prompt','init_img']
     with open(logpath, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow(fields)
@@ -196,9 +223,9 @@ os.makedirs(sample_path, exist_ok=True)
 base_count = len(os.listdir(sample_path)) + 1
 
 if opt.hardware == "directml":
-    pipe = OnnxStableDiffusionPipeline.from_pretrained(opt.model, provider="DmlExecutionProvider")
+    pipe = OnnxStableDiffusionImg2ImgPipeline.from_pretrained(opt.model, provider="DmlExecutionProvider")
 elif opt.hardware == "cpu":
-    pipe = OnnxStableDiffusionPipeline.from_pretrained(opt.model, provider="CPUExecutionProvider")
+    pipe = OnnxStableDiffusionImg2ImgPipeline.from_pretrained(opt.model, provider="CPUExecutionProvider")
 
 for lp in range(opt.loop):
     if opt.random_seed:
@@ -214,7 +241,8 @@ for lp in range(opt.loop):
     latents = get_latents_from_seed(batch_size ,seed, opt.H, opt.W)
     data = [prompt]* batch_size
     ndata = [nprompt]* batch_size
-    results = pipe(data, height=opt.H, width=opt.W, num_inference_steps=opt.ddim_steps, guidance_scale=opt.scale, eta=opt.ddim_eta, latents=latents, negative_prompt=ndata )
+    steps = int(opt.ddim_steps / 0.8) #Don't know why but the img2img pipeline only runs 8/10 of the steps supplied. 
+    results = pipe(data, init_image=init_image, height=opt.H, width=opt.W, num_inference_steps=steps, guidance_scale=opt.scale, eta=opt.ddim_eta, latents=latents, negative_prompt=ndata )
     #for image in images:
     for i in range(len(results.images)):
         if results.nsfw_content_detected[i]:
@@ -222,7 +250,7 @@ for lp in range(opt.loop):
         
         results.images[i].save(os.path.join(sample_path, f"{base_count:05}.png"))
 
-        row = [f"{base_count:05}.png",opt.ddim_steps,opt.ddim_eta,opt.H,opt.W,opt.n_samples,opt.scale,seed,opt.prompt,opt.negative_prompt]
+        row = [f"{base_count:05}.png",opt.ddim_steps,opt.ddim_eta,opt.H,opt.W,opt.n_samples,opt.scale,seed,opt.prompt,opt.negative_prompt,opt.init_img]
         if opt.log:
             with open(logpath, 'a') as csvfile:
                 csvwriter = csv.writer(csvfile)
