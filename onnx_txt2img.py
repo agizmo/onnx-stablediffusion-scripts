@@ -214,11 +214,12 @@ for lp in range(opt.loop):
     latents = get_latents_from_seed(batch_size ,seed, opt.H, opt.W)
     data = [prompt]* batch_size
     ndata = [nprompt]* batch_size
-    results = pipe(data, height=opt.H, width=opt.W, num_inference_steps=opt.ddim_steps, guidance_scale=opt.scale, eta=opt.ddim_eta, latents=latents, negative_prompt=ndata )
+    results = pipe(data, height=opt.H, width=opt.W, num_inference_steps=opt.ddim_steps, guidance_scale=opt.scale, eta=opt.ddim_eta, latents=latents, negative_prompt=ndata)
     #for image in images:
     for i in range(len(results.images)):
-        if results.nsfw_content_detected[i]:
-            print(f"{base_count:05}.png image flagged as having nsfw content. Try a different seed or ddim_step count.")
+        if results.nsfw_content_detected is not None:
+            if results.nsfw_content_detected[i]:
+                print(f"{base_count:05}.png image flagged as having nsfw content. Try a different seed or ddim_step count.")
         
         results.images[i].save(os.path.join(sample_path, f"{base_count:05}.png"))
 
