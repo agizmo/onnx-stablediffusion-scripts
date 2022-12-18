@@ -13,19 +13,20 @@ The setup has been simplified thanks to a guide by [averad](https://gist.github.
 1. Launch Conda.
     1. Windows will have a new icon in the start menu labeled `Anaconda Prompt (miniconda3)`
 1. Download this project from GitHub.
-    1. `git clone https://github.com/agizmo/onnxstablediffusionscripts.git`
+    1. `git clone https://github.com/agizmo/onnx-stablediffusion-scripts.git`  
+    `cd onnx-stablediffusion-scripts`
 1. Create a new Conda environment using the environment files for your given OS.
     1. `conda env create --file environment.yml`
 1. Activate the new Conda environment.
     1. `conda activate onnx`
-1. (Windows Only) Force install onnxruntime-directml. ¯\\_(ツ)_/¯ I Don't know why force install is required, but it worked for averad.
+1. (Windows Only) Force install onnxruntime-directml. ¯\\_(ツ)_/¯ I don't know why force install is required, but it worked for averad.
     1. `pip install onnxruntime-direcml --force-reinstall`  
     **OR**
     1. Install the latest 1.14 nightly build of ONNX. The nightlys appear to have significant performance improvements over the released versions available through pip. (I've seen a 2-3x speed increase)
         1. Go to [https://aiinfra.visualstudio.com/PublicPackages/_artifacts/feed/ORT-Nightly/PyPI/ort-nightly-directml/versions/](https://aiinfra.visualstudio.com/PublicPackages/_artifacts/feed/ORT-Nightly/PyPI/ort-nightly-directml/versions/)
         1. Click on the latest version available. Download the WHL file for your Python environment. If you used the environment file above to set up Conda, choose the `cp39` file (aka Python 3.9).
         1. Run the command `pip install "path to the downloaded WHL file" --force-reinstall` to install the package.
-1. Download the weights for Stable Diffusion. Currently, the best options are to choose between versions 1.4, 1.5, and 2.0. Choose one below:
+1. Download the weights for Stable Diffusion. Currently, the best options are to choose between versions 1.4, 1.5, 2.0, and 2.1. Choose one below:
     1. In a web browser go to [https://huggingface.co](https://huggingface.co) and create an account.
     1. For Stable Diffusion 1.4:
         1. Go to [https://huggingface.co/CompVis/stable-diffusion-v1-4](https://huggingface.co/CompVis/stable-diffusion-v1-4).
@@ -39,16 +40,18 @@ The setup has been simplified thanks to a guide by [averad](https://gist.github.
         1. Go back to the command prompt to download the Stable Diffusion weights. 
             1. Download the repo with the weights. You should be prompted to enter your Hugging Face username and password the first time. The clone job will take several minutes to process and download. Be patient.  
             `git clone https://huggingface.co/runwayml/stable-diffusion-v1-5 --branch onnx --single-branch stable_diffusion_onnx`
-    1. Stable Diffusion 2.0  
-    Currently, there is no prebuilt ONNX version of SD 2.0. The current weights must be converted to work.
+    1. Stable Diffusion 2.0
+        1. From the command prompts download the Stable Diffusion weights.  
+        `git clone https://huggingface.co/stabilityai/stable-diffusion-2-base --branch onnx --single-branche stable_diffusion_onnx`
+    1. Stable Diffusion 2.1  
+    Currently, there is no prebuilt ONNX version of SD 2.1. The weights must be converted to work.
         1. Download Hugging Face's script to convert Stable Diffusion models to ONNX.
             1. Windows  
             `powershell -Command Invoke-WebRequest -Uri "https://raw.githubusercontent.com/huggingface/diffusers/main/scripts/convert_stable_diffusion_checkpoint_to_onnx.py" -OutFile convert_stable_diffusion_checkpoint_to_onnx.py`
             1. Linux  
             `wget https://raw.githubusercontent.com/huggingface/diffusers/main/scripts/convert_stable_diffusion_checkpoint_to_onnx.py`
-        1. Use the ONNX conversion script to download Stable Diffusion's 2.0 model. The job will take several minutes to process and download. Be patient.  
-        `python convert_stable_diffusion_checkpoint_to_onnx.py --model_path "stabilityai/stable-diffusion-2" --output_path "stable_diffusion_onnx"`
-
+        1. Use the ONNX conversion script to download Stable Diffusion's 2.1 model. The job will take several minutes to process and download. Be patient.  
+        `python convert_stable_diffusion_checkpoint_to_onnx.py --model_path "stabilityai/stable-diffusion-2-1" --output_path "stable_diffusion_onnx"`
 1. **Setup Complete**
 
 # Using
