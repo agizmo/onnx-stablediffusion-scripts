@@ -92,12 +92,12 @@ parser.add_argument(
 #    default=8,
 #    help="downsampling factor",
 #)
-parser.add_argument(
-    "--n_samples",
-    type=int,
-    default=1,
-    help="Default: 1. How many samples to produce for each given prompt. A.k.a. batch size",
-)
+#parser.add_argument(
+#    "--n_samples",
+#    type=int,
+#    default=1,
+#    help="Default: 1. How many samples to produce for each given prompt. A.k.a. batch size",
+#)
 #parser.add_argument(
 #    "--n_rows",
 #    type=int,
@@ -186,7 +186,8 @@ outpath = opt.outdir
 logfilename = "log.csv"
 logpath = os.path.join(outpath,logfilename)
 if opt.log and not os.path.exists(logpath):
-    fields = ['image','ddim_steps','ddim_eta','H','W','n_samples','scale','seed','prompt','negative_prompt']
+    #fields = ['image','ddim_steps','ddim_eta','H','W','n_samples','scale','seed','prompt','negative_prompt']
+    fields = ['image','ddim_steps','ddim_eta','H','W','scale','seed','prompt','negative_prompt']
     with open(logpath, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow(fields)
@@ -201,13 +202,14 @@ elif opt.hardware == "cpu":
     pipe = OnnxStableDiffusionPipeline.from_pretrained(opt.model, provider="CPUExecutionProvider")
 
 for lp in range(opt.loop):
-    if opt.random_seed:
+    if opt.random_seed or opt.loop > 1:
         seed = random.randint(1,(2**32))
         print("seed: "+str(seed))
     else:
         seed = opt.seed
 
-    batch_size = opt.n_samples
+    #batch_size = opt.n_samples
+    batch_size = 1
     prompt = opt.prompt
     nprompt = opt.negative_prompt
     # Generate our own latents so that we can provide a seed.
@@ -223,7 +225,9 @@ for lp in range(opt.loop):
         
         results.images[i].save(os.path.join(sample_path, f"{base_count:05}.png"))
 
-        row = [f"{base_count:05}.png",opt.ddim_steps,opt.ddim_eta,opt.H,opt.W,opt.n_samples,opt.scale,seed,opt.prompt,opt.negative_prompt]
+        #row = [f"{base_count:05}.png",opt.ddim_steps,opt.ddim_eta,opt.H,opt.W,opt.n_samples,opt.scale,seed,opt.prompt,opt.negative_prompt]
+        row = [f"{base_count:05}.png",opt.ddim_steps,opt.ddim_eta,opt.H,opt.W,opt.scale,seed,opt.prompt,opt.negative_prompt]
+        
         if opt.log:
             with open(logpath, 'a') as csvfile:
                 csvwriter = csv.writer(csvfile)

@@ -115,12 +115,12 @@ parser.add_argument(
 #    default=8,
 #    help="downsampling factor",
 #)
-parser.add_argument(
-    "--n_samples",
-    type=int,
-    default=1,
-    help="Default: 1. How many samples to produce for each given prompt. A.k.a. batch size",
-)
+#parser.add_argument(
+#    "--n_samples",
+#    type=int,
+#    default=1,
+#    help="Default: 1. How many samples to produce for each given prompt. A.k.a. batch size",
+#)
 #parser.add_argument(
 #    "--n_rows",
 #    type=int,
@@ -213,7 +213,8 @@ init_image = load_img(opt.init_img, opt.W, opt.H)
 logfilename = "log.csv"
 logpath = os.path.join(outpath,logfilename)
 if opt.log and not os.path.exists(logpath):
-    fields = ['image','ddim_steps','ddim_eta','H','W','n_samples','scale','seed','prompt','negative_prompt','init_img']
+    #fields = ['image','ddim_steps','ddim_eta','H','W','n_samples','scale','seed','prompt','negative_prompt','init_img']
+    fields = ['image','ddim_steps','ddim_eta','H','W','scale','seed','prompt','negative_prompt','init_img']
     with open(logpath, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow(fields)
@@ -234,7 +235,8 @@ for lp in range(opt.loop):
     else:
         seed = opt.seed
 
-    batch_size = opt.n_samples
+    #batch_size = opt.n_samples
+    batch_size = 1
     prompt = opt.prompt
     nprompt = opt.negative_prompt
     # Generate our own latents so that we can provide a seed.
@@ -250,7 +252,8 @@ for lp in range(opt.loop):
         
         results.images[i].save(os.path.join(sample_path, f"{base_count:05}.png"))
 
-        row = [f"{base_count:05}.png",opt.ddim_steps,opt.ddim_eta,opt.H,opt.W,opt.n_samples,opt.scale,seed,opt.prompt,opt.negative_prompt,opt.init_img]
+        #row = [f"{base_count:05}.png",opt.ddim_steps,opt.ddim_eta,opt.H,opt.W,opt.n_samples,opt.scale,seed,opt.prompt,opt.negative_prompt,opt.init_img]
+        row = [f"{base_count:05}.png",opt.ddim_steps,opt.ddim_eta,opt.H,opt.W,opt.scale,seed,opt.prompt,opt.negative_prompt,opt.init_img]
         if opt.log:
             with open(logpath, 'a') as csvfile:
                 csvwriter = csv.writer(csvfile)

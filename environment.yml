@@ -2,14 +2,25 @@ name: onnx
 channels:
   - defaults
 dependencies:
-  - python==3.9
+  - python==3.10.*
   - pip
   - pip:
+    #- mpmath>=0.19
+    #- pyreadline3
+    #- humanfriendly>=9.1 
+    - coloredlogs
+    #- mpmath>=0.19 
+    - sympy
+    - numpy<1.24
+    - flatbuffers
+    - packaging 
+    - protobuf<4
     - diffusers
     - transformers
+    #- onnx
     - onnxruntime
-    - onnx
+    #- onnxruntime-directml
     - torch
-    - ftfy
-    - spacy
+    #- ftfy
+    #- spacy
     - accelerate

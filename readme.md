@@ -19,29 +19,22 @@ The setup has been simplified thanks to a guide by [averad](https://gist.github.
     1. `conda env create --file environment.yml`
 1. Activate the new Conda environment.
     1. `conda activate onnx`
-1. (Windows Only) Force install onnxruntime-directml. ¯\\_(ツ)_/¯ I don't know why force install is required, but it worked for averad.
-    1. `pip install onnxruntime-direcml --force-reinstall`  
+1. **(Windows Only)** Install onnxruntime-directml.
+    1. `pip install onnxruntime-directml`  
     **OR**
-    1. Install the latest 1.14 nightly build of ONNX. The nightlys appear to have significant performance improvements over the released versions available through pip. (I've seen a 2-3x speed increase)
+    1. Install the latest 1.14 nightly build of ONNX. The nightlys have significant performance improvements over the released versions available through pip. (I've seen a 2-3x speed increase)
         1. Go to [https://aiinfra.visualstudio.com/PublicPackages/_artifacts/feed/ORT-Nightly/PyPI/ort-nightly-directml/versions/](https://aiinfra.visualstudio.com/PublicPackages/_artifacts/feed/ORT-Nightly/PyPI/ort-nightly-directml/versions/)
-        1. Click on the latest version available. Download the WHL file for your Python environment. If you used the environment file above to set up Conda, choose the `cp39` file (aka Python 3.9).
-        1. Run the command `pip install "path to the downloaded WHL file" --force-reinstall` to install the package.
-1. Download the weights for Stable Diffusion. Currently, the best options are to choose between versions 1.4, 1.5, 2.0, and 2.1. Choose one below:
-    1. In a web browser go to [https://huggingface.co](https://huggingface.co) and create an account.
+        1. Click on the latest version available. Download the WHL file for your Python environment. If you used the environment file above to set up Conda, choose the `cp310` file (aka Python 3.10).
+        1. Run the command `pip install "path to the downloaded WHL file"` to install the package.
+1. Download the weights for Stable Diffusion. Currently, the best options are to choose between versions 1.4, 1.5, 2.0, and 2.1. **Choose one below**:
     1. For Stable Diffusion 1.4:
-        1. Go to [https://huggingface.co/CompVis/stable-diffusion-v1-4](https://huggingface.co/CompVis/stable-diffusion-v1-4).
-        1. Read the license details. By clicking Accept, you agree to share your Hugging Face contact information with the developers.
-        1. Go back to the command prompt to download the Stable Diffusion weights.
-            1. Download the repo with the weights. You should be prompted to enter your Hugging Face username and password the first time. The clone job will take several minutes to process and download. Be patient.  
-            `git clone https://huggingface.co/CompVis/stable-diffusion-v1-4 --branch onnx --single-branch stable_diffusion_onnx`
+        1. From the command prompts download the Stable Diffusion weights. The clone job will take several minutes to process and download. Be patient.   
+        `git clone https://huggingface.co/CompVis/stable-diffusion-v1-4 --branch onnx --single-branch stable_diffusion_onnx`
     1. Stable Diffusion 1.5
-        1. Go to [https://huggingface.co/runwayml/stable-diffusion-v1-5](https://huggingface.co/runwayml/stable-diffusion-v1-5).
-        1. Read the license details. By clicking Accept, you agree to share your Hugging Face contact information with the developers.
-        1. Go back to the command prompt to download the Stable Diffusion weights. 
-            1. Download the repo with the weights. You should be prompted to enter your Hugging Face username and password the first time. The clone job will take several minutes to process and download. Be patient.  
-            `git clone https://huggingface.co/runwayml/stable-diffusion-v1-5 --branch onnx --single-branch stable_diffusion_onnx`
+        1. From the command prompts download the Stable Diffusion weights. The clone job will take several minutes to process and download. Be patient.  
+        `git clone https://huggingface.co/runwayml/stable-diffusion-v1-5 --branch onnx --single-branch stable_diffusion_onnx`
     1. Stable Diffusion 2.0
-        1. From the command prompts download the Stable Diffusion weights.  
+        1. From the command prompts download the Stable Diffusion weights. The clone job will take several minutes to process and download. Be patient.    
         `git clone https://huggingface.co/stabilityai/stable-diffusion-2-base --branch onnx --single-branche stable_diffusion_onnx`
     1. Stable Diffusion 2.1  
     Currently, there is no prebuilt ONNX version of SD 2.1. The weights must be converted to work.
@@ -88,7 +81,7 @@ By default the script will attempt to generate 1 image at 512x512 pixels in a `o
 # All arguement options
 ## Text to Image Generation
 ```
-onnx_txt2img.py [-h] [--prompt [PROMPT]] [--outdir [OUTDIR]] [--ddim_steps DDIM_STEPS] [--ddim_eta DDIM_ETA] [--H H] [--W W] [--n_samples N_SAMPLES] [--scale SCALE] [--seed SEED] [--random_seed RANDOM_SEED] [--negative_prompt NEGATIVE_PROMPT] [--hardware {directml,cpu}] [--loop LOOP] [--log LOG]
+onnx_txt2img.py [-h] [--prompt [PROMPT]] [--outdir [OUTDIR]] [--ddim_steps DDIM_STEPS] [--ddim_eta DDIM_ETA] [--H H] [--W W] [--scale SCALE] [--model MODEL] [--seed SEED] [--random_seed RANDOM_SEED] [--negative_prompt NEGATIVE_PROMPT] [--hardware {directml,cpu}] [--loop LOOP] [--log LOG]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -99,9 +92,8 @@ optional arguments:
   --ddim_eta DDIM_ETA   Default: 0.0. ddim eta (eta=0.0 corresponds to deterministic sampling)
   --H H                 Default: 512. Image height, in pixel space
   --W W                 Default: 512. Image width, in pixel space
-  --n_samples N_SAMPLES
-                        Default: 1. How many samples to produce for each given prompt. A.k.a. batch size
   --scale SCALE         Default: 7.5. Unconditional guidance scale
+  --model MODEL         Default: ./stable_diffusion_onnx. Path to the model folder
   --seed SEED           Default: 42. The seed (for reproducible sampling)
   --random_seed RANDOM_SEED
                         Default: False. Generate a random seed value
@@ -114,7 +106,7 @@ optional arguments:
   ```
 ## Image to Image Generation
   ```
-onnx_img2img.py [-h] [--prompt [PROMPT]] [--init_img [INIT_IMG]] [--outdir [OUTDIR]] [--ddim_steps DDIM_STEPS] [--ddim_eta DDIM_ETA] [--H H] [--W W] [--n_samples N_SAMPLES] [--scale SCALE][--model MODEL] [--seed SEED] [--random_seed RANDOM_SEED] [--negative_prompt NEGATIVE_PROMPT] [--hardware {directml,cpu}] [--loop LOOP] [--log LOG]
+onnx_img2img.py [-h] [--prompt [PROMPT]] [--init_img [INIT_IMG]] [--outdir [OUTDIR]] [--ddim_steps DDIM_STEPS] [--ddim_eta DDIM_ETA] [--H H] [--W W] [--scale SCALE] [--model MODEL] [--seed SEED] [--random_seed RANDOM_SEED] [--negative_prompt NEGATIVE_PROMPT] [--hardware {directml,cpu}] [--loop LOOP] [--log LOG]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -127,8 +119,6 @@ optional arguments:
   --ddim_eta DDIM_ETA   Default: 0.0. ddim eta (eta=0.0 corresponds to deterministic sampling)
   --H H                 Default: 512. Image height, in pixel space
   --W W                 Default: 512. Image width, in pixel space
-  --n_samples N_SAMPLES
-                        Default: 1. How many samples to produce for each given prompt. A.k.a. batch size
   --scale SCALE         Default: 7.5. Unconditional guidance scale
   --model MODEL         Default: ./stable_diffusion_onnx. Path to the model folder
   --seed SEED           Default: 42. The seed (for reproducible sampling)
